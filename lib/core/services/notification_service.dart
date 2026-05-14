@@ -19,6 +19,8 @@ class NotificationService {
 
   /// Call once from main() after Firebase.initializeApp().
   Future<void> initialize() async {
+    if (kIsWeb) return; // FCM background/topic APIs not supported on web
+
     // Register background handler
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
