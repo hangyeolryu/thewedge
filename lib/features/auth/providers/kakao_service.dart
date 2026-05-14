@@ -1,4 +1,4 @@
-// Default stub — overridden by conditional import in auth_provider.dart
+// Default stub — overridden by conditional import in auth_provider.dart and main.dart
 void initKakaoSdk(String nativeAppKey) {}
 
 Future<bool> isKakaoTalkInstalled() async => false;

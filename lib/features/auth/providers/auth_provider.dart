@@ -47,8 +47,6 @@ class AuthService {
 
   Future<void> signInWithApple() async {
     if (kIsWeb) throw UnsupportedError('Apple sign-in not available on web');
-
-    // Dynamically invoke sign_in_with_apple — import guarded at call site
     throw UnimplementedError(
       'Call signInWithAppleMobile() from a mobile-only widget.',
     );
