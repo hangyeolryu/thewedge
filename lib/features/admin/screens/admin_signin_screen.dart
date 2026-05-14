@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -44,10 +45,12 @@ class _AdminSigninScreenState extends ConsumerState<AdminSigninScreen> {
         return;
       }
 
-      // Promote role to admin in users doc (rules allow self-update of non-role
-      // fields; role promotion needs to go through a Cloud Function in prod,
-      // but for allowlisted users we trust the client write here gated by RC).
-      // Simplest: redirect; admin role check in router uses the allowlist too.
+      // Promote role:'admin' in Firestore via Cloud Function (Admin SDK bypasses
+      // client rules that block self-role-update).
+      await FirebaseFunctions.instanceFor(region: 'asia-northeast3')
+          .httpsCallable('promoteAdminRole')
+          .call();
+
       if (mounted) context.go('/admin');
     } catch (e) {
       if (mounted) {
