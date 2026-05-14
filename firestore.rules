@@ -7,10 +7,13 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isAdminByRole() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
     function isAdmin() {
-      return isSignedIn() &&
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
-          || isAdminByEmail());
+      return isSignedIn() && (isAdminByRole() || isAdminByEmail());
     }
 
     // Allowlist check: admin emails are stored in a public collection
