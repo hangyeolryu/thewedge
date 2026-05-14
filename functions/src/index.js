@@ -7,6 +7,8 @@ const { takeDeadlineSnapshot } = require('./snapshots');
 const { kakaoCustomToken } = require('./kakaoAuth');
 const { sendDeadlineReminders, sendReengagementNotifications, saveFcmToken } =
   require('./notifications');
+const { syncAdminAllowlistScheduled, syncAdminAllowlistNow } =
+  require('./adminSync');
 
 exports.moderateComment = moderateComment;
 exports.onCommentWritten = onCommentWritten;
@@ -17,3 +19,5 @@ exports.kakaoCustomToken = kakaoCustomToken;
 exports.sendDeadlineReminders = sendDeadlineReminders;
 exports.sendReengagementNotifications = sendReengagementNotifications;
 exports.saveFcmToken = saveFcmToken;
+exports.syncAdminAllowlistScheduled = syncAdminAllowlistScheduled;
+exports.syncAdminAllowlistNow = syncAdminAllowlistNow;

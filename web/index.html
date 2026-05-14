@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="더 왜지? — 모두가 묻고, 모두가 답하는 대한민국 대국민투표 플랫폼.">
+  <meta name="keywords" content="대국민투표, 가치관, 여론, 투표, 더왜지, thewedge">
+  <meta name="theme-color" content="#0A0A0F">
+
+  <!-- iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="더 왜지?">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- OpenGraph -->
+  <meta property="og:title" content="더 왜지? · 대국민투표 플랫폼">
+  <meta property="og:description" content="모두가 묻고, 모두가 답하는 진짜 대한민국의 생각.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="icons/Icon-512.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <!-- Pretendard from CDN as fallback in case the bundled font fails -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+  <title>더 왜지? · 대국민투표 플랫폼</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #0A0A0F;
+      color: #F5F5F7;
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      min-height: 100vh;
+    }
+    #splash {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column;
+      background: radial-gradient(circle at 30% 20%, rgba(124,92,255,0.25), #0A0A0F 60%);
+      z-index: 9999;
+      transition: opacity 0.4s ease-out;
+    }
+    #splash.gone { opacity: 0; pointer-events: none; }
+    #splash h1 {
+      font-size: 48px; font-weight: 800; margin: 0;
+      background: linear-gradient(135deg, #7C5CFF, #FF6B9D);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -1.5px;
+    }
+    #splash p {
+      margin-top: 12px; color: #9A9AAB; font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="splash">
+    <h1>더 왜지?</h1>
+    <p>대국민투표 플랫폼 로딩 중...</p>
+  </div>
+
+  <script src="flutter_bootstrap.js" async></script>
+  <script>
+    window.addEventListener('flutter-first-frame', () => {
+      const s = document.getElementById('splash');
+      if (s) {
+        s.classList.add('gone');
+        setTimeout(() => s.remove(), 500);
+      }
+    });
+  </script>
+</body>
+</html>

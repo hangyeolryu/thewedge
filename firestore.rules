@@ -9,7 +9,16 @@ service cloud.firestore {
 
     function isAdmin() {
       return isSignedIn() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+          || isAdminByEmail());
+    }
+
+    // Allowlist check: admin emails are stored in a public collection
+    // /admin_allowlist/{email} (lowercased). Cloud Function syncs this from
+    // Remote Config so Firestore rules can read it. Falls back to false if missing.
+    function isAdminByEmail() {
+      return request.auth.token.email != null &&
+        exists(/databases/$(database)/documents/admin_allowlist/$(request.auth.token.email.lower()));
     }
 
     function isOwner(uid) {
@@ -77,6 +86,13 @@ service cloud.firestore {
     match /user_stats/{userId} {
       allow read: if isOwner(userId) || isAdmin();
       allow write: if false; // Cloud Functions only (admin SDK bypasses rules)
+    }
+
+    // Admin allowlist — readable by anyone signed in (so isAdminByEmail() can
+    // resolve), written only by Cloud Function (syncs from Remote Config).
+    match /admin_allowlist/{email} {
+      allow read: if isSignedIn();
+      allow write: if false;
     }
   }
 }
