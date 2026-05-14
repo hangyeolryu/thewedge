@@ -45,20 +45,20 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAkn1PpUNCUaOawvBXao_UyfJteEe5WSQ4',
-    appId: '1:223685413206:ios:PLACEHOLDER',
+    apiKey: 'AIzaSyCngJDgOylOGTqm_BQ4o0zxE7pxhIznEUo',
+    appId: '1:223685413206:ios:bfcdd739990f220940eef7',
     messagingSenderId: '223685413206',
     projectId: 'thewedge-woo',
     storageBucket: 'thewedge-woo.firebasestorage.app',
-    iosBundleId: 'com.thewedge.app',
+    iosBundleId: 'com.effeffcorp.thewedge',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAkn1PpUNCUaOawvBXao_UyfJteEe5WSQ4',
-    appId: '1:223685413206:macos:PLACEHOLDER',
+    apiKey: 'AIzaSyCngJDgOylOGTqm_BQ4o0zxE7pxhIznEUo',
+    appId: '1:223685413206:ios:bfcdd739990f220940eef7',
     messagingSenderId: '223685413206',
     projectId: 'thewedge-woo',
     storageBucket: 'thewedge-woo.firebasestorage.app',
-    iosBundleId: 'com.thewedge.app',
+    iosBundleId: 'com.effeffcorp.thewedge',
   );
 }

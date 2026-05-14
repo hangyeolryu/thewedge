@@ -10,8 +10,12 @@ import '../models/vote_model.dart';
 final _db = FirebaseFirestore.instance;
 final _storage = FirebaseStorage.instance;
 
-// Stream of all active polls (before deadline)
+// Currently selected category filter (null = all)
+final selectedCategoryProvider = StateProvider<PollCategory?>((ref) => null);
+
+// Stream of all active polls (before deadline), optionally filtered by category
 final activePollsProvider = StreamProvider<List<Poll>>((ref) {
+  final category = ref.watch(selectedCategoryProvider);
   return _db
       .collection('polls')
       .orderBy('deadline', descending: false)
@@ -19,16 +23,21 @@ final activePollsProvider = StreamProvider<List<Poll>>((ref) {
       .map((snap) => snap.docs
           .map(Poll.fromFirestore)
           .where((p) => p.deadline.isAfter(DateTime.now()))
+          .where((p) => category == null || p.category == category)
           .toList());
 });
 
-// Stream of all polls (for archive)
+// Stream of all polls (for archive), optionally filtered by category
 final allPollsProvider = StreamProvider<List<Poll>>((ref) {
+  final category = ref.watch(selectedCategoryProvider);
   return _db
       .collection('polls')
       .orderBy('createdAt', descending: true)
       .snapshots()
-      .map((snap) => snap.docs.map(Poll.fromFirestore).toList());
+      .map((snap) => snap.docs
+          .map(Poll.fromFirestore)
+          .where((p) => category == null || p.category == category)
+          .toList());
 });
 
 // Single poll stream (real-time updates)
@@ -195,6 +204,8 @@ class PollService {
     required PollAnswerType answerType,
     required DateTime deadline,
     String? imageUrl,
+    PollCategory category = PollCategory.other,
+    List<String> tags = const [],
   }) async {
     final pollRef = _db.collection('polls').doc();
     final answers = answerTexts
@@ -216,6 +227,8 @@ class PollService {
       status: PollStatus.active,
       createdAt: DateTime.now(),
       createdBy: uid,
+      category: category,
+      tags: tags,
     );
     await pollRef.set(poll.toFirestore());
     return poll;
@@ -228,6 +241,8 @@ class PollService {
     List<String>? answerTexts,
     PollAnswerType? answerType,
     DateTime? deadline,
+    PollCategory? category,
+    List<String>? tags,
   }) async {
     final Map<String, dynamic> updates = {};
     if (question != null) updates['question'] = question;
@@ -244,6 +259,8 @@ class PollService {
           .map((e) => PollAnswer(id: 'a${e.key}', text: e.value).toMap())
           .toList();
     }
+    if (category != null) updates['category'] = category.name;
+    if (tags != null) updates['tags'] = tags;
     await _db.collection('polls').doc(pollId).update(updates);
   }
 

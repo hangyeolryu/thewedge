@@ -33,6 +33,9 @@ class _AdminCreatePollScreenState
   String? _existingImageUrl;
   bool _saving = false;
   bool _loaded = false;
+  PollCategory _category = PollCategory.other;
+  final _tagsController = TextEditingController();
+  final List<String> _tags = [];
 
   @override
   void initState() {
@@ -43,6 +46,7 @@ class _AdminCreatePollScreenState
   @override
   void dispose() {
     _questionController.dispose();
+    _tagsController.dispose();
     for (final c in _answerControllers) {
       c.dispose();
     }
@@ -60,6 +64,10 @@ class _AdminCreatePollScreenState
     _answerType = poll.answerType;
     _deadline = poll.deadline;
     _existingImageUrl = poll.imageUrl;
+    _category = poll.category;
+    _tags
+      ..clear()
+      ..addAll(poll.tags);
     _answerControllers.clear();
     for (final a in poll.answers) {
       _answerControllers.add(TextEditingController(text: a.text));
@@ -104,6 +112,17 @@ class _AdminCreatePollScreenState
     });
   }
 
+  void _addTag(String raw) {
+    final parts = raw.split(RegExp(r'[,，]'));
+    for (final part in parts) {
+      final tag = part.trim().replaceAll(RegExp(r'^#'), '');
+      if (tag.isNotEmpty && !_tags.contains(tag) && _tags.length < 10) {
+        setState(() => _tags.add(tag));
+      }
+    }
+    _tagsController.clear();
+  }
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -134,6 +153,8 @@ class _AdminCreatePollScreenState
           answerType: _answerType,
           deadline: _deadline,
           imageUrl: imageUrl,
+          category: _category,
+          tags: List.from(_tags),
         );
       } else {
         await service.updatePoll(
@@ -143,6 +164,8 @@ class _AdminCreatePollScreenState
           answerType: _answerType,
           deadline: _deadline,
           imageUrl: imageUrl,
+          category: _category,
+          tags: List.from(_tags),
         );
       }
 
@@ -361,6 +384,81 @@ class _AdminCreatePollScreenState
                   ),
                 ),
               ),
+              const SizedBox(height: 24),
+              // Category
+              const _SectionLabel('카테고리 *'),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: PollCategory.values.map((cat) {
+                  final selected = _category == cat;
+                  return GestureDetector(
+                    onTap: () => setState(() => _category = cat),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? AppColors.accent.withOpacity(0.12)
+                            : AppColors.surfaceElev,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color:
+                              selected ? AppColors.accent : AppColors.border,
+                          width: selected ? 2 : 1,
+                        ),
+                      ),
+                      child: Text(
+                        '${cat.emoji} ${cat.label}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: selected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
+                          color: selected
+                              ? AppColors.accent
+                              : AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 24),
+              // Tags
+              const _SectionLabel('태그 (선택) — 쉼표 또는 Enter로 추가'),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _tagsController,
+                decoration: const InputDecoration(
+                  hintText: '#청년 #결혼 ...',
+                  suffixIcon: Icon(Icons.label_outline, size: 18),
+                ),
+                onSubmitted: (v) => _addTag(v),
+              ),
+              if (_tags.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: _tags
+                      .map((tag) => Chip(
+                            label: Text(tag,
+                                style: const TextStyle(fontSize: 12)),
+                            onDeleted: () =>
+                                setState(() => _tags.remove(tag)),
+                            deleteIconColor: AppColors.textTertiary,
+                            backgroundColor: AppColors.surfaceElev,
+                            side: const BorderSide(color: AppColors.border),
+                            padding: EdgeInsets.zero,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                          ))
+                      .toList(),
+                ),
+              ],
               const SizedBox(height: 40),
               // Save button
               SizedBox(

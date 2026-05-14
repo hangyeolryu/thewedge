@@ -91,6 +91,7 @@ exports.moderateComment = functions.https.onCall(async (data, context) => {
 /**
  * Firestore trigger: when a comment is created/updated, run moderation
  * and update the doc with toxicity scores + status.
+ * Also enforces auto-blur at 3+ flags (belt-and-suspenders on top of client logic).
  */
 exports.onCommentWritten = functions.firestore
   .document('comments/{commentId}')
@@ -99,6 +100,13 @@ exports.onCommentWritten = functions.firestore
     const after = change.after.data();
     const before = change.before.exists ? change.before.data() : null;
 
+    // Auto-blur enforcement: if flaggedBy array grew and is now >= 3
+    const prevFlags = (before?.flaggedBy ?? []).length;
+    const nowFlags = (after.flaggedBy ?? []).length;
+    if (nowFlags >= 3 && nowFlags !== prevFlags && after.status === 'visible') {
+      await change.after.ref.update({ status: 'blurred' });
+    }
+
     // Only re-score if text changed or never scored
     if (before && before.text === after.text && after.toxicityScore != null) {
       return;
@@ -106,10 +114,15 @@ exports.onCommentWritten = functions.firestore
 
     const result = await scoreText(after.text);
 
+    // Don't downgrade manually-blurred/blocked comments from flagging
+    const currentStatus = after.status;
+    const newStatus =
+      currentStatus === 'blocked' ? 'blocked' : result.status;
+
     await change.after.ref.update({
       toxicityScore: result.maxScore,
       toxicityScores: result.scores,
-      status: result.status,
+      status: newStatus,
       moderatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -121,7 +134,7 @@ exports.onCommentWritten = functions.firestore
         {
           totalComments: admin.firestore.FieldValue.increment(1),
           blockedComments:
-            result.status === 'blocked'
+            newStatus === 'blocked'
               ? admin.firestore.FieldValue.increment(1)
               : admin.firestore.FieldValue.increment(0),
           recentToxicityScores: admin.firestore.FieldValue.arrayUnion(

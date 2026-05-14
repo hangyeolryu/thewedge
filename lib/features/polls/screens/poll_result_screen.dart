@@ -6,6 +6,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../../core/theme/app_theme.dart';
 import '../models/poll_model.dart';
 import '../providers/polls_provider.dart';
+import '../widgets/opinion_change_chart.dart';
 import '../widgets/result_bar.dart';
 
 class PollResultScreen extends ConsumerStatefulWidget {
@@ -71,7 +72,7 @@ class _PollResultScreenState extends ConsumerState<PollResultScreen>
           body: TabBarView(
             controller: _tabController,
             children: [
-              _ResultTab(poll: poll, myVote: myVote),
+              _ResultTab(poll: poll, myVote: myVote, changelog: changelog),
               _ChangelogTab(changelog: changelog),
             ],
           ),
@@ -84,8 +85,9 @@ class _PollResultScreenState extends ConsumerState<PollResultScreen>
 class _ResultTab extends StatelessWidget {
   final Poll poll;
   final dynamic myVote;
+  final List<dynamic> changelog;
 
-  const _ResultTab({required this.poll, required this.myVote});
+  const _ResultTab({required this.poll, required this.myVote, required this.changelog});
 
   @override
   Widget build(BuildContext context) {
@@ -206,6 +208,16 @@ class _ResultTab extends StatelessWidget {
               ),
             ],
           ),
+          // Opinion change chart (only after deadline snapshot + has changes)
+          if (poll.deadlineSnapshotTaken && changelog.isNotEmpty) ...[
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 20),
+            OpinionChangeChart(
+              poll: poll,
+              changelog: changelog.cast(),
+            ),
+          ],
         ],
       ),
     );

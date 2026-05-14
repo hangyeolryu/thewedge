@@ -5,6 +5,27 @@ enum PollAnswerType { radio, checkbox }
 
 enum PollStatus { active, ended }
 
+enum PollCategory {
+  values('가치관', '💡'),
+  relationships('관계', '❤️'),
+  career('직장/커리어', '💼'),
+  society('사회/이슈', '🌐'),
+  culture('문화/취미', '🎨'),
+  economy('경제', '💰'),
+  other('기타', '📌');
+
+  final String label;
+  final String emoji;
+  const PollCategory(this.label, this.emoji);
+
+  static PollCategory fromString(String? value) {
+    return PollCategory.values.firstWhere(
+      (c) => c.name == value,
+      orElse: () => PollCategory.other,
+    );
+  }
+}
+
 class PollAnswer extends Equatable {
   final String id;
   final String text;
@@ -64,6 +85,8 @@ class Poll extends Equatable {
   final bool deadlineSnapshotTaken;
   final DateTime createdAt;
   final String createdBy;
+  final PollCategory category;
+  final List<String> tags;
 
   const Poll({
     required this.id,
@@ -78,6 +101,8 @@ class Poll extends Equatable {
     this.deadlineSnapshotTaken = false,
     required this.createdAt,
     required this.createdBy,
+    this.category = PollCategory.other,
+    this.tags = const [],
   });
 
   bool get isActive =>
@@ -104,6 +129,8 @@ class Poll extends Equatable {
       deadlineSnapshotTaken: data['deadlineSnapshotTaken'] as bool? ?? false,
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       createdBy: data['createdBy'] as String,
+      category: PollCategory.fromString(data['category'] as String?),
+      tags: List<String>.from(data['tags'] as List<dynamic>? ?? []),
     );
   }
 
@@ -119,6 +146,8 @@ class Poll extends Equatable {
         'deadlineSnapshotTaken': deadlineSnapshotTaken,
         'createdAt': Timestamp.fromDate(createdAt),
         'createdBy': createdBy,
+        'category': category.name,
+        'tags': tags,
       };
 
   Poll copyWith({
@@ -134,6 +163,8 @@ class Poll extends Equatable {
     bool? deadlineSnapshotTaken,
     DateTime? createdAt,
     String? createdBy,
+    PollCategory? category,
+    List<String>? tags,
   }) =>
       Poll(
         id: id ?? this.id,
@@ -149,10 +180,12 @@ class Poll extends Equatable {
             deadlineSnapshotTaken ?? this.deadlineSnapshotTaken,
         createdAt: createdAt ?? this.createdAt,
         createdBy: createdBy ?? this.createdBy,
+        category: category ?? this.category,
+        tags: tags ?? this.tags,
       );
 
   @override
   List<Object?> get props => [id, question, imageUrl, answers, answerType,
       deadline, status, totalVotes, deadlineTotalVotes, deadlineSnapshotTaken,
-      createdAt, createdBy];
+      createdAt, createdBy, category, tags];
 }

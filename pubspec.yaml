@@ -16,6 +16,7 @@ dependencies:
   cloud_firestore: ^4.14.0
   firebase_storage: ^11.6.0
   cloud_functions: ^4.6.0
+  firebase_messaging: ^14.7.10
 
   # Auth providers
   google_sign_in: ^6.2.1
@@ -39,6 +40,9 @@ dependencies:
   lottie: ^3.1.0
   flutter_svg: ^2.0.10+1
   gap: ^3.0.1
+
+  # Deeplinks
+  app_links: ^6.1.1
 
   # Utils
   uuid: ^4.3.3

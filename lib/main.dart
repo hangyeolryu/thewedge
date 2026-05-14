@@ -6,6 +6,7 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 import 'app.dart';
 import 'core/constants/app_constants.dart';
+import 'core/services/notification_service.dart';
 import 'core/theme/app_theme.dart';
 import 'firebase_options.dart';
 
@@ -17,6 +18,8 @@ void main() async {
   KakaoSdk.init(nativeAppKey: AppConstants.kakaoNativeAppKey);
 
   SystemChrome.setSystemUIOverlayStyle(AppTheme.systemOverlayDark);
+
+  await NotificationService().initialize();
 
   runApp(const ProviderScope(child: TheWedgeApp()));
 }

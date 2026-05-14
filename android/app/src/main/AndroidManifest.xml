@@ -29,6 +29,20 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="kakao${YOUR_KAKAO_NATIVE_APP_KEY}" android:host="oauth"/>
             </intent-filter>
+            <!-- TheWedge custom scheme deeplinks: thewedge://poll/<id> -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="thewedge"/>
+            </intent-filter>
+            <!-- Universal links: https://thewedge.app/polls/<id> -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="thewedge.app" android:pathPrefix="/polls"/>
+            </intent-filter>
         </activity>
         <meta-data
             android:name="flutterEmbedding"

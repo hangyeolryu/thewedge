@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../models/poll_model.dart';
 import '../providers/polls_provider.dart';
 import '../widgets/poll_card.dart';
 
@@ -16,6 +17,7 @@ class PollArchiveScreen extends ConsumerWidget {
     final pollsAsync = showActiveOnly
         ? ref.watch(activePollsProvider)
         : ref.watch(allPollsProvider);
+    final selectedCategory = ref.watch(selectedCategoryProvider);
 
     return RefreshIndicator(
       onRefresh: () async => ref.invalidate(
@@ -35,6 +37,34 @@ class PollArchiveScreen extends ConsumerWidget {
               ),
             ),
           ),
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 44,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                children: [
+                  _CategoryChip(
+                    label: '전체',
+                    emoji: '🔍',
+                    selected: selectedCategory == null,
+                    onTap: () => ref
+                        .read(selectedCategoryProvider.notifier)
+                        .state = null,
+                  ),
+                  ...PollCategory.values.map((cat) => _CategoryChip(
+                        label: cat.label,
+                        emoji: cat.emoji,
+                        selected: selectedCategory == cat,
+                        onTap: () => ref
+                            .read(selectedCategoryProvider.notifier)
+                            .state = cat,
+                      )),
+                ],
+              ),
+            ),
+          ),
+          const SliverPadding(padding: EdgeInsets.only(top: 4)),
           pollsAsync.when(
             loading: () => SliverList(
               delegate: SliverChildBuilderDelegate(
@@ -102,6 +132,50 @@ class PollArchiveScreen extends ConsumerWidget {
           ),
           const SliverPadding(padding: EdgeInsets.only(bottom: 16)),
         ],
+      ),
+    );
+  }
+}
+
+class _CategoryChip extends StatelessWidget {
+  final String label;
+  final String emoji;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _CategoryChip({
+    required this.label,
+    required this.emoji,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.accent.withOpacity(0.15)
+              : AppColors.surfaceElev,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? AppColors.accent : AppColors.border,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Text(
+          '$emoji $label',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            color: selected ? AppColors.accent : AppColors.textSecondary,
+          ),
+        ),
       ),
     );
   }

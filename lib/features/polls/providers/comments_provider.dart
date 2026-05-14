@@ -78,12 +78,31 @@ class CommentService {
     await ref.set(comment.toFirestore());
   }
 
-  /// Flag a comment. If 3+ flags, Cloud Function will hide it.
+  /// Flag a comment. Auto-blurs at 3+ unique flags (Cloud Function also enforces this).
   Future<void> flagComment(String commentId) async {
     if (uid.isEmpty) return;
-    await _db.collection('comments').doc(commentId).update({
+    final ref = _db.collection('comments').doc(commentId);
+    final snap = await ref.get();
+    if (!snap.exists) return;
+
+    final data = snap.data() as Map<String, dynamic>;
+    final flaggedBy = List<String>.from(data['flaggedBy'] as List? ?? []);
+    if (flaggedBy.contains(uid)) return; // already flagged by this user
+
+    final newFlaggedBy = [...flaggedBy, uid];
+    final Map<String, dynamic> updates = {
       'flaggedBy': FieldValue.arrayUnion([uid]),
-    });
+    };
+
+    // Auto-blur when 3+ unique users have flagged
+    if (newFlaggedBy.length >= 3) {
+      final currentStatus = data['status'] as String? ?? 'visible';
+      if (currentStatus == 'visible') {
+        updates['status'] = 'blurred';
+      }
+    }
+
+    await ref.update(updates);
   }
 
   Future<void> deleteComment(String commentId) async {
