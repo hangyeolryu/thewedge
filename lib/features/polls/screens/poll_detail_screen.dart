@@ -7,7 +7,10 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../models/poll_model.dart';
 import '../models/vote_model.dart';
+import '../providers/comments_provider.dart';
 import '../providers/polls_provider.dart';
+import '../widgets/comment_composer.dart';
+import '../widgets/comment_tile.dart';
 import '../widgets/result_bar.dart';
 
 class PollDetailScreen extends ConsumerStatefulWidget {
@@ -127,6 +130,8 @@ class _PollDetailScreenState extends ConsumerState<PollDetailScreen> {
         final isPast = poll.isPastDeadline;
         final hasVoted = myVote != null;
 
+        final commentsAsync = ref.watch(commentsForPollProvider(poll.id));
+
         return Scaffold(
           appBar: AppBar(
             title: const Text('투표'),
@@ -139,6 +144,14 @@ class _PollDetailScreenState extends ConsumerState<PollDetailScreen> {
                 ),
             ],
           ),
+          bottomNavigationBar: hasVoted
+              ? CommentComposer(
+                  pollId: poll.id,
+                  hintText: isPast
+                      ? '의견 변경 후 생각을 남겨주세요...'
+                      : '이 투표에 대한 생각을 나눠주세요...',
+                )
+              : null,
           body: CustomScrollView(
             slivers: [
               if (poll.imageUrl != null)
@@ -254,7 +267,66 @@ class _PollDetailScreenState extends ConsumerState<PollDetailScreen> {
                           ),
                         ),
                       ],
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 32),
+                      // Comments section
+                      if (hasVoted) ...[
+                        const Divider(),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            const Icon(Icons.chat_bubble_outline,
+                                size: 16, color: AppColors.textPrimary),
+                            const SizedBox(width: 6),
+                            Text(
+                              '의견 (${commentsAsync.valueOrNull?.length ?? 0})',
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        commentsAsync.when(
+                          loading: () => const Padding(
+                            padding: EdgeInsets.all(20),
+                            child: Center(
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2)),
+                          ),
+                          error: (e, _) => Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Text('댓글을 불러올 수 없습니다.',
+                                style: TextStyle(
+                                    color: AppColors.textTertiary,
+                                    fontSize: 12)),
+                          ),
+                          data: (comments) {
+                            if (comments.isEmpty) {
+                              return const Padding(
+                                padding:
+                                    EdgeInsets.symmetric(vertical: 24),
+                                child: Center(
+                                  child: Text(
+                                    '첫 의견을 남겨보세요',
+                                    style: TextStyle(
+                                      color: AppColors.textTertiary,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                            return Column(
+                              children: comments
+                                  .map((c) => CommentTile(comment: c))
+                                  .toList(),
+                            );
+                          },
+                        ),
+                      ],
+                      const SizedBox(height: 80),
                     ],
                   ),
                 ),

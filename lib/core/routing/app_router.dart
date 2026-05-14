@@ -9,6 +9,7 @@ import '../../features/auth/screens/login_screen.dart';
 import '../../features/polls/screens/poll_archive_screen.dart';
 import '../../features/polls/screens/poll_detail_screen.dart';
 import '../../features/polls/screens/poll_result_screen.dart';
+import '../../features/profile/screens/persona_report_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../shared/widgets/main_scaffold.dart';
 import '../constants/app_constants.dart';
@@ -59,6 +60,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => PollResultScreen(
           pollId: state.pathParameters['pollId']!,
         ),
+      ),
+      GoRoute(
+        path: '/profile/persona',
+        builder: (context, state) => const PersonaReportScreen(),
       ),
       GoRoute(
         path: '/admin',

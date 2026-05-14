@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../auth/models/app_user.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../models/user_stats_model.dart';
+import '../providers/user_stats_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -13,6 +15,7 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(currentUserProvider);
+    final statsAsync = ref.watch(myStatsProvider);
 
     return userAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -110,7 +113,21 @@ class ProfileScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
+              // Persona card preview
+              statsAsync.when(
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+                data: (stats) {
+                  if (stats == null) return const SizedBox.shrink();
+                  return _PersonaPreview(
+                    persona: stats.persona,
+                    totalVotes: stats.totalVotes,
+                    onTap: () => context.push('/profile/persona'),
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
               // Menu items
               _MenuSection(
                 title: '계정',
@@ -121,6 +138,11 @@ class ProfileScreen extends ConsumerWidget {
                       label: '관리자 패널',
                       onTap: () => context.push('/admin'),
                     ),
+                  _MenuItem(
+                    icon: Icons.insights_outlined,
+                    label: '내 성향 리포트',
+                    onTap: () => context.push('/profile/persona'),
+                  ),
                   _MenuItem(
                     icon: Icons.history,
                     label: '내 투표 기록',
@@ -249,6 +271,88 @@ class _MenuSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PersonaPreview extends StatelessWidget {
+  final Persona persona;
+  final int totalVotes;
+  final VoidCallback onTap;
+  const _PersonaPreview({
+    required this.persona,
+    required this.totalVotes,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              persona.color.withOpacity(0.12),
+              persona.color.withOpacity(0.04),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: persona.color.withOpacity(0.25)),
+        ),
+        child: Row(
+          children: [
+            Text(persona.emoji, style: const TextStyle(fontSize: 32)),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        persona.label,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: persona.color,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: persona.color.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '$totalVotes표',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: persona.color,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    '내 성향 리포트 보기 →',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -57,10 +57,39 @@ admin.firestore().doc(`users/${uid}`).update({ role: 'admin' });
 
 ## 8. Deadline Snapshot
 
-The `takeDeadlineSnapshot` method in `PollService` should be called at the poll
-deadline. Options:
-- Firebase Cloud Function with a Pub/Sub scheduled trigger
-- Admin manually triggers via the admin dashboard (popup menu → "마감 스냅샷 저장")
+The deadline snapshot is taken automatically by the `takeDeadlineSnapshot`
+Cloud Function (runs every 5 minutes via Pub/Sub schedule). Admins can also
+trigger manually from the admin dashboard.
+
+## 9. Cloud Functions
+
+```bash
+cd functions
+npm install
+
+# Set Perspective API key (get from Google Cloud Console)
+firebase functions:config:set perspective.key="YOUR_PERSPECTIVE_API_KEY"
+
+# Deploy all functions
+firebase deploy --only functions
+```
+
+Functions:
+- `moderateComment` (callable) — pre-check toxicity before posting
+- `onCommentWritten` (Firestore trigger) — score comment, update status, update user stats
+- `onVoteWritten` (Firestore trigger) — increment user stats, recompute persona
+- `recalculatePersona` (callable) — manual persona refresh
+- `takeDeadlineSnapshot` (Pub/Sub schedule, every 5 min) — freeze deadline results
+- `kakaoCustomToken` (callable) — exchange Kakao token → Firebase custom token
+
+## 10. Perspective API Setup
+
+1. Go to https://perspectiveapi.com/ and request access
+2. Enable the API in Google Cloud Console for your Firebase project
+3. Create an API key restricted to Perspective Comment Analyzer API
+4. Set it as a function config (see step 9)
+
+Korean is fully supported. Free tier: 1 QPS, sufficient for early stage.
 
 ## Data Model Overview
 

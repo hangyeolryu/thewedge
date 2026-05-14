@@ -51,5 +51,29 @@ service cloud.firestore {
         resource.data.userId == request.auth.uid;
       allow delete: if false;
     }
+
+    // Comments collection — public read of visible+blurred, owner+admin can delete
+    match /comments/{commentId} {
+      allow read: if true; // public, but client filters blocked
+      allow create: if isSignedIn() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.text.size() <= 1000 &&
+        // Toxicity score and status are set by Cloud Function — clients
+        // submit with default values (0 / 'visible') and the trigger overwrites
+        request.resource.data.status == 'visible';
+      // Only allow flagging (adding own uid to flaggedBy) — no other field changes
+      allow update: if isSignedIn() &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['flaggedBy']) &&
+        request.auth.uid in request.resource.data.flaggedBy;
+      allow delete: if isSignedIn() &&
+        (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // User stats — only readable by owner, written only by Cloud Functions
+    match /user_stats/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if false; // Cloud Functions only (admin SDK bypasses rules)
+    }
   }
 }
