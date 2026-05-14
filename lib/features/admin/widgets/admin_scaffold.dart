@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,7 +7,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../auth/providers/auth_provider.dart';
 
 /// Standard chrome for all admin web pages — left rail nav + header.
-class AdminScaffold extends ConsumerWidget {
+class AdminScaffold extends ConsumerStatefulWidget {
   final String title;
   final String activeRoute;
   final Widget body;
@@ -21,19 +22,45 @@ class AdminScaffold extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdminScaffold> createState() => _AdminScaffoldState();
+}
+
+class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _ensureAdminRole());
+  }
+
+  /// If the user reached an admin page without going through the sign-in flow
+  /// (e.g. already signed in, router bypasses /admin/signin), promote their
+  /// Firestore role to 'admin' now so Firestore rules accept writes.
+  Future<void> _ensureAdminRole() async {
+    final user = ref.read(currentUserProvider).valueOrNull;
+    if (user == null || user.isAdmin) return;
+    try {
+      await FirebaseFunctions.instanceFor(region: 'asia-northeast3')
+          .httpsCallable('promoteAdminRole')
+          .call();
+    } catch (e) {
+      debugPrint('Admin role promotion failed: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider).valueOrNull;
     final isWide = MediaQuery.of(context).size.width > 900;
 
     return Scaffold(
       backgroundColor: AppColors.bg,
-      drawer: isWide ? null : Drawer(child: _SideNav(activeRoute: activeRoute)),
+      drawer: isWide ? null : Drawer(child: _SideNav(activeRoute: widget.activeRoute)),
       body: Row(
         children: [
           if (isWide)
             SizedBox(
               width: 240,
-              child: _SideNav(activeRoute: activeRoute),
+              child: _SideNav(activeRoute: widget.activeRoute),
             ),
           Expanded(
             child: Column(
@@ -56,9 +83,9 @@ class AdminScaffold extends ConsumerWidget {
                             onPressed: () => Scaffold.of(ctx).openDrawer(),
                           ),
                         ),
-                      Text(title, style: AppTextStyles.h3),
+                      Text(widget.title, style: AppTextStyles.h3),
                       const Spacer(),
-                      ...actions,
+                      ...widget.actions,
                       const SizedBox(width: 12),
                       // User chip
                       Container(
@@ -109,7 +136,7 @@ class AdminScaffold extends ConsumerWidget {
                   ),
                 ),
                 // Body
-                Expanded(child: body),
+                Expanded(child: widget.body),
               ],
             ),
           ),
