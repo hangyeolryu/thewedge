@@ -210,11 +210,9 @@ class AppTheme {
         onSecondary: Colors.white,
         surface: AppColors.surface,
         onSurface: AppColors.textPrimary,
-        background: AppColors.bg,
-        onBackground: AppColors.textPrimary,
         error: AppColors.error,
         onError: Colors.white,
-        surfaceVariant: AppColors.surfaceElev,
+        surfaceContainerHighest: AppColors.surfaceElev,
         onSurfaceVariant: AppColors.textSecondary,
         outline: AppColors.border,
         outlineVariant: AppColors.borderSubtle,
@@ -253,7 +251,7 @@ class AppTheme {
         ),
         iconTheme: IconThemeData(color: AppColors.textPrimary, size: 22),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: 0,
         margin: EdgeInsets.zero,
@@ -366,7 +364,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(AppRadius.md)),
         behavior: SnackBarBehavior.floating,
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surfaceElev,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.lg)),
@@ -382,7 +380,7 @@ class AppTheme {
         thumbColor: AppColors.accent,
         inactiveTrackColor: AppColors.surfaceElev,
       ),
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: AppColors.textPrimary,
         unselectedLabelColor: AppColors.textTertiary,
         labelStyle: AppTextStyles.label.copyWith(fontSize: 14),

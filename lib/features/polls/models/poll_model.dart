@@ -6,7 +6,7 @@ enum PollAnswerType { radio, checkbox }
 enum PollStatus { active, ended }
 
 enum PollCategory {
-  values('가치관', '💡'),
+  coreValues('가치관', '💡'),
   relationships('관계', '❤️'),
   career('직장/커리어', '💼'),
   society('사회/이슈', '🌐'),
@@ -19,6 +19,7 @@ enum PollCategory {
   const PollCategory(this.label, this.emoji);
 
   static PollCategory fromString(String? value) {
+    if (value == 'values') return PollCategory.coreValues;
     return PollCategory.values.firstWhere(
       (c) => c.name == value,
       orElse: () => PollCategory.other,
