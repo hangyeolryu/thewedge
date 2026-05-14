@@ -3,12 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 import 'app.dart';
 import 'core/constants/app_constants.dart';
 import 'core/services/notification_service.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/providers/kakao_service.dart'
+    if (dart.library.io) 'features/auth/services/kakao_service_mobile.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -17,7 +18,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   if (!kIsWeb) {
-    KakaoSdk.init(nativeAppKey: AppConstants.kakaoNativeAppKey);
+    initKakaoSdk(AppConstants.kakaoNativeAppKey);
     SystemChrome.setSystemUIOverlayStyle(AppTheme.systemOverlayDark);
   }
 
