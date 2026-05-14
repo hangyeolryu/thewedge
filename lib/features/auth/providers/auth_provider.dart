@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart'
-    as kakao_sdk;
+
+import 'kakao_service.dart'
+    if (dart.library.io) '../services/kakao_service_mobile.dart';
 
 import '../models/app_user.dart';
 
@@ -45,46 +46,25 @@ class AuthService {
   }
 
   Future<void> signInWithApple() async {
-    final appleCredential = await SignInWithApple.getAppleIDCredential(
-      scopes: [
-        AppleIDAuthorizationScopes.email,
-        AppleIDAuthorizationScopes.fullName,
-      ],
-    );
-    final oauthCredential = OAuthProvider('apple.com').credential(
-      idToken: appleCredential.identityToken,
-      accessToken: appleCredential.authorizationCode,
-    );
-    final userCred = await _auth.signInWithCredential(oauthCredential);
-    // Apple only sends name on first login — persist it
-    final displayName = [
-      appleCredential.givenName,
-      appleCredential.familyName,
-    ].where((s) => s != null && s.isNotEmpty).join(' ');
-    await _upsertUser(
-      userCred.user!,
-      AuthProvider.apple,
-      displayNameOverride: displayName.isNotEmpty ? displayName : null,
+    if (kIsWeb) throw UnsupportedError('Apple sign-in not available on web');
+
+    // Dynamically invoke sign_in_with_apple — import guarded at call site
+    throw UnimplementedError(
+      'Call signInWithAppleMobile() from a mobile-only widget.',
     );
   }
 
   Future<void> signInWithKakao() async {
-    // Try Kakao Talk first, fall back to web browser
+    if (kIsWeb) throw UnsupportedError('Kakao sign-in not available on web');
     try {
-      if (await kakao_sdk.isKakaoTalkInstalled()) {
-        await kakao_sdk.UserApi.instance.loginWithKakaoTalk();
+      if (await isKakaoTalkInstalled()) {
+        await loginWithKakaoTalk();
       } else {
-        await kakao_sdk.UserApi.instance.loginWithKakaoAccount();
+        await loginWithKakaoAccount();
       }
-    } catch (e) {
-      await kakao_sdk.UserApi.instance.loginWithKakaoAccount();
+    } catch (_) {
+      await loginWithKakaoAccount();
     }
-
-    final kakaoUser = await kakao_sdk.UserApi.instance.me();
-
-    // Exchange Kakao token for a Firebase custom token via your backend.
-    // For now we create a pseudo-UID and use the custom sign-in flow.
-    // TODO: call your Cloud Function / backend to exchange and get a Firebase custom token.
     throw UnimplementedError(
       'Kakao → Firebase custom token exchange requires a backend Cloud Function. '
       'See docs/KAKAO_AUTH.md for setup instructions.',
@@ -94,9 +74,7 @@ class AuthService {
   Future<void> signOut() async {
     await _auth.signOut();
     await GoogleSignIn().signOut();
-    try {
-      await kakao_sdk.UserApi.instance.logout();
-    } catch (_) {}
+    if (!kIsWeb) await kakaoLogout();
   }
 
   Future<void> _upsertUser(
@@ -118,7 +96,6 @@ class AuthService {
       );
       await ref.set(appUser.toFirestore());
     } else {
-      // Update mutable fields only
       await ref.update({
         'displayName': displayNameOverride ??
             firebaseUser.displayName ??
