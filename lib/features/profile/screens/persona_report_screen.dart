@@ -430,7 +430,7 @@ class _PrivacyNote extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: AppColors.surfaceElev,
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Row(

@@ -201,7 +201,7 @@ class _AdminCreatePollScreenState
                   width: double.infinity,
                   height: 160,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
+                    color: AppColors.surfaceElev,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                         color: AppColors.border, style: BorderStyle.solid),
@@ -341,7 +341,7 @@ class _AdminCreatePollScreenState
                   padding: const EdgeInsets.symmetric(
                       horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
+                    color: AppColors.surfaceElev,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.border),
                   ),
@@ -429,7 +429,7 @@ class _TypeToggle extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected
                 ? AppColors.accent.withOpacity(0.08)
-                : AppColors.surfaceVariant,
+                : AppColors.surfaceElev,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: selected ? AppColors.accent : AppColors.border,

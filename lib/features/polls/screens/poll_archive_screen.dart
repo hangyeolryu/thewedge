@@ -112,7 +112,7 @@ class _ShimmerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppColors.border,
-      highlightColor: AppColors.surfaceVariant,
+      highlightColor: AppColors.surfaceElev,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         height: 180,

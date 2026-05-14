@@ -32,7 +32,7 @@ class ProfileScreen extends ConsumerWidget {
               // Avatar
               CircleAvatar(
                 radius: 44,
-                backgroundColor: AppColors.surfaceVariant,
+                backgroundColor: AppColors.surfaceElev,
                 backgroundImage: user.photoUrl != null
                     ? CachedNetworkImageProvider(user.photoUrl!)
                     : null,

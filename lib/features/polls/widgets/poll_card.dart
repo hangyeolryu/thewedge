@@ -14,99 +14,169 @@ class PollCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPast = poll.isPastDeadline;
-    final deadlineStr = DateFormat('yyyy.MM.dd HH:mm').format(poll.deadline);
+    final dateStr = DateFormat('MM.dd HH:mm').format(poll.deadline);
+    final remaining = poll.deadline.difference(DateTime.now());
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (poll.imageUrl != null)
-              ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(16)),
-                child: CachedNetworkImage(
-                  imageUrl: poll.imageUrl!,
-                  height: 160,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(
-                    height: 160,
-                    color: AppColors.surfaceVariant,
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-                  errorWidget: (_, __, ___) => Container(
-                    height: 160,
-                    color: AppColors.surfaceVariant,
-                    child: const Icon(Icons.image_not_supported_outlined,
-                        color: AppColors.textTertiary),
-                  ),
-                ),
-              ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      _StatusChip(isPast: isPast),
-                      const SizedBox(width: 8),
-                      _TypeChip(type: poll.answerType),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    poll.question,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                      height: 1.4,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Icon(Icons.people_outline,
-                          size: 15, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${_formatCount(poll.totalVotes)}명 참여',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
+    return Container(
+      margin: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          splashColor: AppColors.accentSoft,
+          highlightColor: AppColors.accentSoft,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (poll.imageUrl != null)
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(AppRadius.lg)),
+                      child: CachedNetworkImage(
+                        imageUrl: poll.imageUrl!,
+                        height: 180,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) => Container(
+                          height: 180,
+                          color: AppColors.surfaceElev,
+                        ),
+                        errorWidget: (_, __, ___) => Container(
+                          height: 180,
+                          color: AppColors.surfaceElev,
+                          child: const Icon(Icons.image_not_supported_outlined,
+                              color: AppColors.textTertiary),
                         ),
                       ),
-                      const Spacer(),
-                      Icon(
-                        isPast ? Icons.lock_clock : Icons.schedule,
-                        size: 15,
-                        color: isPast
-                            ? AppColors.error
-                            : AppColors.textSecondary,
+                    ),
+                    // Image gradient overlay for legibility of badges
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(AppRadius.lg)),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.black.withOpacity(0.3),
+                                Colors.transparent,
+                              ],
+                              stops: const [0, 0.4],
+                            ),
+                          ),
+                        ),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        isPast ? '마감 $deadlineStr' : '~$deadlineStr',
-                        style: TextStyle(
-                          fontSize: 12,
+                    ),
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      child: Row(
+                        children: [
+                          _StatusBadge(isPast: isPast, remaining: remaining),
+                          const SizedBox(width: 6),
+                          _TypeBadge(type: poll.answerType),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (poll.imageUrl == null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                        child: Row(
+                          children: [
+                            _StatusBadge(isPast: isPast, remaining: remaining),
+                            const SizedBox(width: 6),
+                            _TypeBadge(type: poll.answerType),
+                          ],
+                        ),
+                      ),
+                    Text(
+                      poll.question,
+                      style: AppTextStyles.h3.copyWith(
+                        fontSize: 17,
+                        height: 1.4,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Row(
+                      children: [
+                        const Icon(Icons.person_outline,
+                            size: 14, color: AppColors.textTertiary),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${_formatCount(poll.totalVotes)}명',
+                          style: AppTextStyles.bodySm.copyWith(
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Container(
+                          width: 3,
+                          height: 3,
+                          decoration: const BoxDecoration(
+                            color: AppColors.textTertiary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Icon(
+                          isPast ? Icons.lock_outline : Icons.schedule,
+                          size: 13,
                           color: isPast
                               ? AppColors.error
-                              : AppColors.textSecondary,
+                              : AppColors.textTertiary,
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 4),
+                        Text(
+                          isPast ? '$dateStr 마감' : dateStr,
+                          style: AppTextStyles.bodySm.copyWith(
+                            color: isPast
+                                ? AppColors.error
+                                : AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const Spacer(),
+                        // Arrow
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceElev,
+                            borderRadius: BorderRadius.circular(AppRadius.xs),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward,
+                            size: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -115,55 +185,87 @@ class PollCard extends StatelessWidget {
   String _formatCount(int count) {
     if (count >= 10000) return '${(count / 10000).toStringAsFixed(1)}만';
     if (count >= 1000) return '${(count / 1000).toStringAsFixed(1)}천';
-    return count.toString();
+    return '$count';
   }
 }
 
-class _StatusChip extends StatelessWidget {
+class _StatusBadge extends StatelessWidget {
   final bool isPast;
-  const _StatusChip({required this.isPast});
+  final Duration remaining;
+  const _StatusBadge({required this.isPast, required this.remaining});
 
   @override
   Widget build(BuildContext context) {
+    final urgent = !isPast && remaining.inHours < 24;
+    final color = isPast
+        ? AppColors.textTertiary
+        : urgent
+            ? AppColors.highlight
+            : AppColors.success;
+    final label = isPast
+        ? '마감'
+        : urgent
+            ? 'D-${remaining.inHours}h'
+            : 'LIVE';
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isPast
-            ? AppColors.textTertiary.withOpacity(0.15)
-            : AppColors.highlight.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(6),
+        color: AppColors.bg.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(AppRadius.xs),
+        border: Border.all(color: color.withOpacity(0.5)),
       ),
-      child: Text(
-        isPast ? '마감' : '진행중',
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: isPast ? AppColors.textTertiary : AppColors.highlight,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!isPast)
+            Container(
+              width: 6,
+              height: 6,
+              margin: const EdgeInsets.only(right: 5),
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(color: color.withOpacity(0.6), blurRadius: 6),
+                ],
+              ),
+            ),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Pretendard',
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: color,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _TypeChip extends StatelessWidget {
+class _TypeBadge extends StatelessWidget {
   final PollAnswerType type;
-  const _TypeChip({required this.type});
+  const _TypeBadge({required this.type});
 
   @override
   Widget build(BuildContext context) {
     final isMulti = type == PollAnswerType.checkbox;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.accent.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(6),
+        color: AppColors.bg.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(AppRadius.xs),
+        border: Border.all(color: AppColors.border),
       ),
       child: Text(
-        isMulti ? '다중선택' : '단일선택',
-        style: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: AppColors.accent,
+        isMulti ? '복수' : '단일',
+        style: AppTextStyles.caption.copyWith(
+          color: AppColors.textSecondary,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );

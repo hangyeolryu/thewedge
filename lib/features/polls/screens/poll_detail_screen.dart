@@ -447,7 +447,7 @@ class _AnswerTile extends StatelessWidget {
                     child: Container(
                       color: selected
                           ? AppColors.accent.withOpacity(0.12)
-                          : AppColors.resultBarBackground.withOpacity(0.6),
+                          : AppColors.surfaceElev.withOpacity(0.6),
                     ),
                   ),
                 ),

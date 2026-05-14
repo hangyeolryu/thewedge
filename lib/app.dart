@@ -11,8 +11,10 @@ class TheWedgeApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     return MaterialApp.router(
-      title: 'TheWedge · 대국민투표',
-      theme: AppTheme.light,
+      title: 'TheWedge · 더 왜지?',
+      theme: AppTheme.dark,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.dark,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
       locale: const Locale('ko', 'KR'),

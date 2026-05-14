@@ -116,7 +116,7 @@ class _ResultTab extends StatelessWidget {
                 icon: Icons.people_outline,
                 label: '실시간 참여',
                 value: '$realtimeTotal명',
-                color: AppColors.resultBar,
+                color: AppColors.resultRealtime,
               ),
               const SizedBox(width: 12),
               _StatChip(
@@ -125,7 +125,7 @@ class _ResultTab extends StatelessWidget {
                 value: poll.deadlineSnapshotTaken
                     ? '$deadlineTotal명'
                     : '집계 전',
-                color: AppColors.resultBarDeadline,
+                color: AppColors.resultDeadline,
               ),
             ],
           ),
@@ -133,10 +133,10 @@ class _ResultTab extends StatelessWidget {
           // Legend
           Row(
             children: [
-              _LegendDot(color: AppColors.resultBar, label: '실시간 결과'),
+              _LegendDot(color: AppColors.resultRealtime, label: '실시간 결과'),
               const SizedBox(width: 16),
               _LegendDot(
-                color: AppColors.resultBarDeadline,
+                color: AppColors.resultDeadline,
                 label: poll.deadlineSnapshotTaken
                     ? '마감 시 결과'
                     : '마감 시 결과 (집계 전)',
@@ -245,7 +245,7 @@ class _ChangelogTab extends ConsumerWidget {
               const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
           leading: const CircleAvatar(
             radius: 18,
-            backgroundColor: AppColors.surfaceVariant,
+            backgroundColor: AppColors.surfaceElev,
             child: Icon(Icons.person, size: 18, color: AppColors.textSecondary),
           ),
           title: Text(

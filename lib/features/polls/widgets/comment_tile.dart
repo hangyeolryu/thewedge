@@ -33,7 +33,7 @@ class _CommentTileState extends ConsumerState<CommentTile> {
         children: [
           CircleAvatar(
             radius: 16,
-            backgroundColor: AppColors.surfaceVariant,
+            backgroundColor: AppColors.surfaceElev,
             backgroundImage: c.userPhotoUrl != null
                 ? CachedNetworkImageProvider(c.userPhotoUrl!)
                 : null,
