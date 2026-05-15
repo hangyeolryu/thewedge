@@ -88,7 +88,9 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // ─── Voter app ───────────────────────────────────────
       ShellRoute(
-        builder: (context, state, child) => MainScaffold(child: child),
+        pageBuilder: (context, state, child) => NoTransitionPage(
+          child: MainScaffold(child: child),
+        ),
         routes: [
           GoRoute(
             path: '/polls',
