@@ -92,17 +92,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: '/polls',
-            builder: (context, state) =>
-                const PollArchiveScreen(showActiveOnly: true),
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: PollArchiveScreen(showActiveOnly: true),
+            ),
           ),
           GoRoute(
             path: '/archive',
-            builder: (context, state) =>
-                const PollArchiveScreen(showActiveOnly: false),
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: PollArchiveScreen(showActiveOnly: false),
+            ),
           ),
           GoRoute(
             path: '/profile',
-            builder: (context, state) => const ProfileScreen(),
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: ProfileScreen(),
+            ),
           ),
         ],
       ),
