@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Brand gradient: electric violet → coral pink (top-left to bottom-right) -->
+    <linearGradient id="brand" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7C5CFF"/>
+      <stop offset="100%" stop-color="#FF6B9D"/>
+    </linearGradient>
+
+    <!-- Soft glow bloom filter -->
+    <filter id="bloom" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="28" result="blur"/>
+    </filter>
+
+    <!-- Background surface gradient (slightly lifted center) -->
+    <radialGradient id="bgLift" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#131320"/>
+      <stop offset="100%" stop-color="#0A0A0F"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background: deep ink black with subtle centre lift -->
+  <rect width="1024" height="1024" rx="224" fill="url(#bgLift)"/>
+
+  <!-- Glow bloom layer (blurred W, wider stroke, low opacity) -->
+  <path d="M 155,188 L 356,808 L 512,462 L 668,808 L 869,188"
+        stroke="url(#brand)"
+        stroke-width="210"
+        stroke-opacity="0.28"
+        fill="none"
+        stroke-linecap="butt"
+        stroke-linejoin="round"
+        filter="url(#bloom)"/>
+
+  <!-- Main W letterform -->
+  <path d="M 155,188 L 356,808 L 512,462 L 668,808 L 869,188"
+        stroke="url(#brand)"
+        stroke-width="148"
+        fill="none"
+        stroke-linecap="butt"
+        stroke-linejoin="round"/>
+</svg>
